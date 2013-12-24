@@ -1,12 +1,17 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
-import distutils
+import distutils.core
 import re
 from os.path import join, abspath, dirname
-__version__ = re.search(
-    "__version__\s*=\s*'(.*)'",
-    open(join(dirname(abspath(__file__)), 'promarsh/__init__.py')).read(),
-    re.M).group(1)
+try:
+    import setuptools
+except:
+    pass
+
+__init_py_file__ = join(dirname(abspath(__file__)), 'promarsh/__init__.py')
+__version__ = re.search("""__version__\s*=\s*['"](.*)['"]""",
+                        open(__init_py_file__).read(),
+                        re.M).group(1)
 
 
 def parse_requirements(file_name):
@@ -20,7 +25,7 @@ def parse_requirements(file_name):
             requirements.append(re.sub(r'\s*-f\s+.*#egg=(.*)-([0-9]+\.[0-9.]*)(.*)$', r'\1==\2\3', line))
         else:
             requirements.append(line)
-            return requirements
+    return requirements
 
 
 def parse_dependency_links(file_name):
@@ -28,7 +33,8 @@ def parse_dependency_links(file_name):
     for line in open(file_name, 'r').read().split('\n'):
         if re.match(r'\s*-[ef]\s+', line):
             dependency_links.append(re.sub(r'\s*-[ef]\s+', '', line))
-            return dependency_links
+
+    return dependency_links
 
 
 class PyTest(distutils.core.Command):
