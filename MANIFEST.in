@@ -1,0 +1,6 @@
+include README.md requirements.txt
+recursive-include test *.py *.sh
+recursive-include examples *
+recursive-include docs *.md
+recursive-exclude promarsh *.pyc *.swp *~
+prune build
