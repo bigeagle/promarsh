@@ -9,13 +9,13 @@ from .helpers import serialize, deserialize_from
 
 class Struct(FieldType):
 
-    def __init__(self, fields, *args, **kwargs):
+    def __init__(self, *fields, **kwargs):
         for name, ftype in fields:
             if not (isinstance(ftype, FieldType) or issubclass(ftype, FieldType)):
                 raise TypeError("(%s, %s) is not valid field" % (name, ftype))
 
         self._fields = fields
-        super(Struct, self).__init__(*args, **kwargs)
+        super(Struct, self).__init__(**kwargs)
 
     def _pack(self, container):
 

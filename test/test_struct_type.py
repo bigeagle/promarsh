@@ -11,20 +11,24 @@ from promarsh.context import context
 class TestArrayField(unittest.TestCase):
 
     def test_struct_deserialization(self):
-        MyStruct1 = Struct([
+        MyStruct1 = Struct(
             ('f1', UInt16b),
             ('f2', Array(UInt16b, count=3)),
-        ])
-        buf = "\x00\x06\x02\x17\x00l\x00c"
+            ('f3', Struct(
+                ('ff1', UInt8b),
+            )),
+        )
+        buf = "\x00\x06\x02\x17\x00l\x00c\x09"
         s, _ = MyStruct1.deserialize_from(buf)
         self.assertEqual(s.f1, 6)
         self.assertEqual(s.f2, [535, 108, 99])
+        self.assertEqual(s.f3.ff1, 9)
 
     def test_struct_serialization(self):
-        MyStruct1 = Struct([
+        MyStruct1 = Struct(
             ('f1', UInt16b),
             ('f2', Array(UInt16b, count=3)),
-        ])
+        )
         container = Container(f1=6, f2=[535, 108, 99])
         self.assertEqual(MyStruct1.serialize(container), "\x00\x06\x02\x17\x00l\x00c")
 
