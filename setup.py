@@ -53,7 +53,7 @@ class PyTest(distutils.core.Command):
         setup_file = sys.modules['__main__'].__file__
         setup_dir = os.path.abspath(os.path.dirname(setup_file))
         test_loader = unittest.defaultTestLoader
-        test_runner = unittest.TextTestRunner()
+        test_runner = unittest.TextTestRunner(verbosity=2)
         test_suite = test_loader.discover(setup_dir)
         test_runner.run(test_suite)
 
@@ -65,7 +65,7 @@ distutils.core.setup(
     long_description=open("README.md").read(),
     author='Justin Wong',
     author_email='justin.w.xd@gmail.com',
-    license="BSD",
+    license="GPL",
     platforms=["Linux"],
     url='https://github.com/bigeagle/promarsh',
     packages=['promarsh'],

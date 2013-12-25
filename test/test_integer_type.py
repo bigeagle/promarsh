@@ -7,66 +7,54 @@ from promarsh.integer_type import (
 from promarsh.helpers import list_to_bytestring
 
 
-class TestFieldDeserialization(unittest.TestCase):
+class TestIntegerFields(unittest.TestCase):
 
-    def test_integers(self):
-        f = UInt8b()
-        v, r = f.deserialize_from(list_to_bytestring([35]))
+    def test_integer_deserialization(self):
+        v, r = UInt8b.unpack_from(list_to_bytestring([35]))
         self.assertEqual(v, 35)
         self.assertEqual(r, '')
 
-        f = UInt8l()
-        v, r = f.deserialize_from(list_to_bytestring([35]))
+        v, r = UInt8l.unpack_from(list_to_bytestring([35]))
         self.assertEqual(v, 35)
         self.assertEqual(r, '')
 
-        f = SInt8b()
-        v, r = f.deserialize_from('\xdd')
+        v, r = SInt8b.unpack_from('\xdd')
         self.assertEqual(v, -35)
         self.assertEqual(r, '')
 
-        f = SInt8l()
-        v, r = f.deserialize_from('\xdd')
+        v, r = SInt8l.unpack_from('\xdd')
         self.assertEqual(v, -35)
         self.assertEqual(r, '')
 
-        f = UInt16b()
-        v, r = f.deserialize_from('\x02\x17')
+        v, r = UInt16b.unpack_from('\x02\x17')
         self.assertEqual(v, 535)
         self.assertEqual(r, '')
 
-        f = UInt16l()
-        v, r = f.deserialize_from('\x17\x02')
+        v, r = UInt16l.unpack_from('\x17\x02')
         self.assertEqual(v, 535)
         self.assertEqual(r, '')
 
-        f = SInt16b()
-        v, r = f.deserialize_from('\xf2\x17')
+        v, r = SInt16b.unpack_from('\xf2\x17')
         self.assertEqual(v, -3561)
         self.assertEqual(r, '')
 
-        f = SInt16l()
-        v, r = f.deserialize_from('\x17\xf2')
+        v, r = SInt16l.unpack_from('\x17\xf2')
         self.assertEqual(v, -3561)
         self.assertEqual(r, '')
 
-        f = UInt32b()
-        v, r = f.deserialize_from('\xf1\x09\x17\x12')
+        v, r = UInt32b.unpack_from('\xf1\x09\x17\x12')
         self.assertEqual(v, 4043904786)
         self.assertEqual(r, '')
 
-        f = UInt32l()
-        v, r = f.deserialize_from('\x12\x17\x09\xf1')
+        v, r = UInt32l.unpack_from('\x12\x17\x09\xf1')
         self.assertEqual(v, 4043904786)
         self.assertEqual(r, '')
 
-        f = SInt32b()
-        v, r = f.deserialize_from('\xf1\x09\x17\x12')
+        v, r = SInt32b.unpack_from('\xf1\x09\x17\x12')
         self.assertEqual(v, -251062510)
         self.assertEqual(r, '')
 
-        f = SInt32l()
-        v, r = f.deserialize_from('\x12\x17\x09\xf1')
+        v, r = SInt32l.unpack_from('\x12\x17\x09\xf1')
         self.assertEqual(v, -251062510)
         self.assertEqual(r, '')
 

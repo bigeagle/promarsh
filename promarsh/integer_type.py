@@ -8,6 +8,7 @@ Author: Justin Wong <justin.w.xd@gmail.com>
 
 import struct
 from .base_type import BaseFieldType
+from .context import context
 
 
 class BaseInteger(BaseFieldType):
@@ -19,8 +20,10 @@ class BaseInteger(BaseFieldType):
         value: integer value
     """
 
-    def __init__(self, value=None):
+    def __init__(self, value=None, after_pack=None, after_unpack=None):
         self.value = value
+        self._after_pack = after_pack
+        self._after_unpack = after_unpack
 
     def serialize(self):
         """Serialize packet to byte string
@@ -35,7 +38,10 @@ class BaseInteger(BaseFieldType):
         if self.value is None:
             raise ValueError("Field value not set")
 
-        return struct.pack(self.fmt, self.value)
+        if callable(self._after_pack):
+            self._after_pack(context, self.value)
+
+        return self.pack(self.value)
 
     def deserialize_from(self, buf):
         """unpack value from buffer
@@ -44,12 +50,25 @@ class BaseInteger(BaseFieldType):
             buf: a byte string contains binary data
 
         Returns:
-            value: integer value unpacked from buf
+            instance: integer value unpacked from buf
             rest: rest binary data in the buf
         """
-        self.value = struct.unpack_from(self.fmt, buf)[0]
+        value, buf = self.unpack_from(buf)
+        self.value = value
 
-        return self.value, buf[self.length:]
+        if callable(self._after_unpack):
+            self._after_unpack(context, value)
+
+        return self, buf
+
+    @classmethod
+    def pack(cls, value):
+        return struct.pack(cls.fmt, value)
+
+    @classmethod
+    def unpack_from(cls, buf):
+        value = struct.unpack_from(cls.fmt, buf)[0]
+        return value, buf[cls.length:]
 
 
 class UInt8b(BaseInteger):
@@ -124,6 +143,9 @@ class SInt32l(BaseInteger):
     length = 4
 
 
-
-
+__all__ = [
+    "UInt8b", "UInt8l", "SInt8b", "SInt8l",
+    "UInt16b", "UInt16l", "SInt16b", "SInt16l",
+    "UInt32b", "UInt32l", "SInt32b", "SInt32l",
+]
 # vim: ts=4 sw=4 sts=4 expandtab
