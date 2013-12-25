@@ -7,51 +7,17 @@ Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
 import struct
-from .base_type import BaseFieldType
-from .context import context
+from .base_type import FieldType
 
 
-class BaseInteger(BaseFieldType):
+class BaseInteger(FieldType):
     """
     Base Class for integer types
 
     Attrs:
         fmt: same as parent
-        value: integer value
+        length: integer length in bytes
     """
-
-    def __init__(self, before_pack=None, after_unpack=None):
-        self._before_pack = before_pack
-        self._after_unpack = after_unpack
-
-    def serialize(self):
-        """Serialize packet to byte string
-
-        Returns:
-            pack: binary byte string
-        """
-
-        if callable(self._before_pack):
-            self._before_pack(context, self.value)
-
-        return self._pack(self.value)
-
-    def deserialize_from(self, buf):
-        """unpack value from buffer
-
-        Args:
-            buf: a byte string contains binary data
-
-        Returns:
-            instance: integer value unpacked from buf
-            rest: rest binary data in the buf
-        """
-        value, buf = self._unpack_from(buf)
-
-        if callable(self._after_unpack):
-            self._after_unpack(context, value)
-
-        return value, buf
 
     @classmethod
     def _pack(cls, value):

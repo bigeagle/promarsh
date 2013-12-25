@@ -7,23 +7,22 @@ Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
 from operator import add
-from .base_type import BaseFieldType, UnpackError
+from .base_type import FieldType, UnpackError
 from .integer_type import BaseInteger
 from .context import context
 
 
-class Array(BaseFieldType):
+class Array(FieldType):
     """
     Array
 
     Attrs:
         fmt: same as parent
-        value: tuple value
+        count: element counts
+        length: field length in bytes
     """
-    fmt = None
 
-    def __init__(self, T, count=None, length=None,
-                 before_pack=None, after_unpack=None):
+    def __init__(self, T, count=None, length=None, *args, **kwargs):
         """
         Args:
             T: type of elements
@@ -31,27 +30,12 @@ class Array(BaseFieldType):
         Raises:
             TypeError: raise if T is not a valid class Name
         """
-        if not issubclass(T, BaseFieldType):
+        if not issubclass(T, FieldType):
             raise TypeError("T should be a FieldType class")
         self.T = T
         self._count = count
         self._length = length
-        self._before_pack = before_pack
-        self._after_unpack = after_unpack
-
-    def serialize(self, value):
-        if callable(self._before_pack):
-            self._before_pack(context, self.value)
-
-        return self._pack(value)
-
-    def deserialize_from(self, buf):
-        lst, buf = self._unpack_from(buf)
-
-        if callable(self._after_unpack):
-            self._after_unpack(context, lst)
-
-        return lst, buf
+        super(Array, self).__init__(*args, **kwargs)
 
     def _pack(self, value):
         return reduce(add, [self.T._pack(v) for v in value])
@@ -89,19 +73,18 @@ class Array(BaseFieldType):
                     raise UnpackError("Error inferring packet length from context")
 
 
-class PrefixArray(Array):
+class PrefixArray(FieldType):
     """
     Array with a length prefix
     """
-    def __init__(self, PT, T, before_pack=None, after_unpack=None):
-        if not issubclass(T, BaseFieldType):
+    def __init__(self, PT, T, *args, **kwargs):
+        if not issubclass(T, FieldType):
             raise TypeError("T should be a FieldType class")
         if not issubclass(PT, BaseInteger):
             raise TypeError("PT should be a Integer class")
         self.PT = PT
         self.T = T
-        self._before_pack = before_pack
-        self._after_unpack = after_unpack
+        super(PrefixArray, self).__init__(*args, **kwargs)
 
     def _pack(self, value):
         return self.PT.pack(len(value)*self.T.length) \
@@ -115,14 +98,6 @@ class PrefixArray(Array):
             lst.append(v)
 
         return lst, buf
-
-    @property
-    def count(self):
-        return None
-
-    @property
-    def length(self):
-        return None
 
 __all__ = ["Array", "PrefixArray"]
 # vim: ts=4 sw=4 sts=4 expandtab
