@@ -24,7 +24,7 @@ class BaseFieldType(object):
     length = None
 
     def __init__(self, *args, **kwargs):
-        raise NotImplemented
+        pass
 
     def serialize(self):
         raise NotImplemented
