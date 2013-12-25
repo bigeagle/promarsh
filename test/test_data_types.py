@@ -1,5 +1,5 @@
 import unittest
-from promarsh.field_types import (
+from promarsh.integers import (
     UInt8b, UInt8l, SInt8b, SInt8l,
     UInt16b, UInt16l, SInt16b, SInt16l,
     UInt32b, UInt32l, SInt32b, SInt32l,

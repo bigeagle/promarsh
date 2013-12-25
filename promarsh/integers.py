@@ -1,37 +1,14 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
 """
-Data types
+Integer Types
 
 Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
 import struct
+from .base import BaseFieldType
 
-
-class BaseFieldType(object):
-    """
-    Base class for field types
-
-    Attrs:
-        fmt: format string for `struct` module
-        length: field length in bytes
-    """
-
-    fmt = None
-    length = None
-
-    def __init__(self, *args, **kwargs):
-        raise NotImplemented
-
-    def serialize(self):
-        raise NotImplemented
-
-    def deserialize_from(self, buf):
-        raise NotImplemented
-
-
-# Here comes the integers
 
 class BaseInteger(BaseFieldType):
     """
@@ -102,49 +79,49 @@ class SInt8l(BaseInteger):
 class UInt16b(BaseInteger):
     """ Unsigned 16-bit integer in big endian"""
     fmt = ">H"
-    length = 1
+    length = 2
 
 
 class UInt16l(BaseInteger):
     """ Signed 16-bit integer in little endian"""
     fmt = "<H"
-    length = 1
+    length = 2
 
 
 class SInt16b(BaseInteger):
     """ Signed 16-bit integer in big endian"""
     fmt = ">h"
-    length = 1
+    length = 2
 
 
 class SInt16l(BaseInteger):
     """ Signed 16-bit integer in little endian"""
     fmt = "<h"
-    length = 1
+    length = 2
 
 
 class UInt32b(BaseInteger):
     """ Unsigned 32-bit integer in big endian"""
     fmt = ">I"
-    length = 1
+    length = 4
 
 
 class UInt32l(BaseInteger):
     """ Signed 32-bit integer in little endian"""
     fmt = "<I"
-    length = 1
+    length = 4
 
 
 class SInt32b(BaseInteger):
     """ Signed 32-bit integer in big endian"""
     fmt = ">i"
-    length = 1
+    length = 4
 
 
 class SInt32l(BaseInteger):
     """ Signed 32-bit integer in little endian"""
     fmt = "<i"
-    length = 1
+    length = 4
 
 
 
