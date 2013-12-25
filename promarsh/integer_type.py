@@ -20,8 +20,7 @@ class BaseInteger(BaseFieldType):
         value: integer value
     """
 
-    def __init__(self, value=None, before_pack=None, after_unpack=None):
-        self.value = value
+    def __init__(self, before_pack=None, after_unpack=None):
         self._before_pack = before_pack
         self._after_unpack = after_unpack
 
@@ -30,18 +29,12 @@ class BaseInteger(BaseFieldType):
 
         Returns:
             pack: binary byte string
-
-        Raises:
-            ValueError: raise if value is `None`
-
         """
-        if self.value is None:
-            raise ValueError("Field value not set")
 
         if callable(self._before_pack):
             self._before_pack(context, self.value)
 
-        return self.pack(self.value)
+        return self._pack(self.value)
 
     def deserialize_from(self, buf):
         """unpack value from buffer
@@ -53,20 +46,25 @@ class BaseInteger(BaseFieldType):
             instance: integer value unpacked from buf
             rest: rest binary data in the buf
         """
-        value, buf = self.unpack_from(buf)
-        self.value = value
+        value, buf = self._unpack_from(buf)
 
         if callable(self._after_unpack):
             self._after_unpack(context, value)
 
-        return self, buf
+        return value, buf
 
     @classmethod
-    def pack(cls, value):
+    def _pack(cls, value):
+        """
+        Non-user API
+        """
         return struct.pack(cls.fmt, value)
 
     @classmethod
-    def unpack_from(cls, buf):
+    def _unpack_from(cls, buf):
+        """
+        Non-user API
+        """
         value = struct.unpack_from(cls.fmt, buf)[0]
         return value, buf[cls.length:]
 

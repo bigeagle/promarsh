@@ -26,18 +26,16 @@ class BaseFieldType(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def serialize(self):
+    def serialize(self, value):
         raise NotImplemented
 
     def deserialize_from(cls, buf):
         raise NotImplemented
 
-    @classmethod
-    def pack(cls, value):
+    def _pack(cls, value):
         raise NotImplemented
 
-    @classmethod
-    def unpack_from(cls, value):
+    def _unpack_from(cls, buf):
         raise NotImplemented
 
 # vim: ts=4 sw=4 sts=4 expandtab
