@@ -7,7 +7,7 @@ Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
 import struct
-from .base import BaseFieldType
+from .base_type import BaseFieldType
 
 
 class BaseInteger(BaseFieldType):
