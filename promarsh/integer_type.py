@@ -20,9 +20,9 @@ class BaseInteger(BaseFieldType):
         value: integer value
     """
 
-    def __init__(self, value=None, after_pack=None, after_unpack=None):
+    def __init__(self, value=None, before_pack=None, after_unpack=None):
         self.value = value
-        self._after_pack = after_pack
+        self._before_pack = before_pack
         self._after_unpack = after_unpack
 
     def serialize(self):
@@ -38,8 +38,8 @@ class BaseInteger(BaseFieldType):
         if self.value is None:
             raise ValueError("Field value not set")
 
-        if callable(self._after_pack):
-            self._after_pack(context, self.value)
+        if callable(self._before_pack):
+            self._before_pack(context, self.value)
 
         return self.pack(self.value)
 

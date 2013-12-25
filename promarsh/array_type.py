@@ -22,7 +22,7 @@ class Array(BaseFieldType):
     fmt = None
 
     def __init__(self, T, count=None, length=None, value=None,
-                 after_pack=None, after_unpack=None):
+                 before_pack=None, after_unpack=None):
         """
         Args:
             T: type of elements
@@ -36,15 +36,15 @@ class Array(BaseFieldType):
         self.value = value
         self._count = count
         self._length = length
-        self._after_pack = after_pack
+        self._before_pack = before_pack
         self._after_unpack = after_unpack
 
     def serialize(self):
         if self.value is None:
             raise ValueError("Field value not set")
 
-        if callable(self._after_pack):
-            self._after_pack(context, self.value)
+        if callable(self._before_pack):
+            self._before_pack(context, self.value)
 
         return reduce(add, [self.T.pack(v) for v in self.value])
 
