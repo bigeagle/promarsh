@@ -13,6 +13,10 @@ class UnpackError(Exception):
     pass
 
 
+class PackError(Exception):
+    pass
+
+
 class BaseFieldType(object):
     """
     Base class for field types
