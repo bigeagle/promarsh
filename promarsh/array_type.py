@@ -180,4 +180,5 @@ class PrefixArray(object):
     __metaclass__ = MetaPrefixArray
 
 __all__ = ["Array", "PrefixArray"]
+
 # vim: ts=4 sw=4 sts=4 expandtab

@@ -7,7 +7,7 @@ Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
 import struct
-from .base_type import FieldType
+from .base_type import FieldType, MetaFieldType
 
 
 class BaseInteger(FieldType):

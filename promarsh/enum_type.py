@@ -56,4 +56,5 @@ class MetaEnum(MetaFieldType):
 class Enum(object):
     __metaclass__ = MetaEnum
 
+__all__ = ['Enum']
 # vim: ts=4 sw=4 sts=4 expandtab
