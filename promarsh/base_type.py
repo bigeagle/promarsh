@@ -28,6 +28,12 @@ class _ClassProperty(object):
 class MetaFieldType(type):
     length = _ClassProperty('get_length')
 
+    def __rlshift__(cls, x):
+        return (x, cls)
+
+    def __rdiv__(cls, x):
+        return (x, cls)
+
 
 class BaseFieldType(object):
     """
@@ -133,5 +139,11 @@ class FieldType(BaseFieldType):
     @classmethod
     def name(cls):
         return cls.__name__
+
+    def __rlshift__(self, x):
+        return (x, self)
+
+    def __rdiv__(self, x):
+        return (x, self)
 
 # vim: ts=4 sw=4 sts=4 expandtab

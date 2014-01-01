@@ -12,11 +12,11 @@ class TestStructField(unittest.TestCase):
 
     def test_struct_deserialization(self):
         MyStruct1 = Struct(
-            ('f1', UInt16b),
-            ('f2', Array[UInt16b:3]),
-            ('f3', Struct(
-                ('ff1', UInt8b),
-            )),
+            "f1" << UInt16b,
+            'f2' << Array[UInt16b:3],
+            'f3' << Struct(
+                'ff1' << UInt8b,
+            ),
         )
         buf = "\x00\x06\x02\x17\x00l\x00c\x09"
         s, _ = MyStruct1.deserialize_from(buf)
@@ -26,16 +26,16 @@ class TestStructField(unittest.TestCase):
 
     def test_struct_serialization(self):
         MyStruct1 = Struct(
-            ('f1', UInt16b),
-            ('f2', Array[UInt16b:3]),
+            'f1' << UInt16b,
+            'f2' << Array[UInt16b:3],
         )
         container = Container(f1=6, f2=[535, 108, 99])
         self.assertEqual(MyStruct1.serialize(container), "\x00\x06\x02\x17\x00l\x00c")
 
     def test_struct_array_deserialization(self):
         MyStruct1 = Struct(
-            ('f1', UInt16b),
-            ('f2', Array[UInt16b:3]),
+            'f1' << UInt16b,
+            'f2' << Array[UInt16b:3],
         )
         ArrStruct = Array[MyStruct1:2]
 
@@ -46,8 +46,8 @@ class TestStructField(unittest.TestCase):
 
     def test_struct_array_serialization(self):
         MyStruct1 = Struct(
-            ('f1', UInt16b),
-            ('f2', Array[UInt16b:3]),
+            'f1' << UInt16b,
+            'f2' << Array[UInt16b:3],
         )
         ArrStruct = Array[MyStruct1:2]
         c1 = Container(f1=6, f2=[535, 108, 99])
