@@ -15,8 +15,8 @@ class BaseInteger(FieldType):
     Base Class for integer types
 
     Attrs:
-        fmt: same as parent
-        length: integer length in bytes
+        _fmt: same as parent
+        _length: integer length in bytes
     """
 
     @classmethod
@@ -24,87 +24,87 @@ class BaseInteger(FieldType):
         """
         Non-user API
         """
-        return struct.pack(cls.fmt, value)
+        return struct.pack(cls._fmt, value)
 
     @classmethod
     def _unpack_from(cls, buf):
         """
         Non-user API
         """
-        value = struct.unpack_from(cls.fmt, buf)[0]
+        value = struct.unpack_from(cls._fmt, buf)[0]
         return value, buf[cls.length:]
 
 
 class UInt8b(BaseInteger):
     """ Unsigned 8-bit integer in big endian"""
-    fmt = ">B"
-    length = 1
+    _fmt = ">B"
+    _length = 1
 
 
 class UInt8l(BaseInteger):
     """ Signed 8-bit integer in little endian"""
-    fmt = "<B"
-    length = 1
+    _fmt = "<B"
+    _length = 1
 
 
 class SInt8b(BaseInteger):
     """ Signed 8-bit integer in big endian"""
-    fmt = ">b"
-    length = 1
+    _fmt = ">b"
+    _length = 1
 
 
 class SInt8l(BaseInteger):
     """ Signed 8-bit integer in little endian"""
-    fmt = "<b"
-    length = 1
+    _fmt = "<b"
+    _length = 1
 
 
 class UInt16b(BaseInteger):
     """ Unsigned 16-bit integer in big endian"""
-    fmt = ">H"
-    length = 2
+    _fmt = ">H"
+    _length = 2
 
 
 class UInt16l(BaseInteger):
     """ Signed 16-bit integer in little endian"""
-    fmt = "<H"
-    length = 2
+    _fmt = "<H"
+    _length = 2
 
 
 class SInt16b(BaseInteger):
     """ Signed 16-bit integer in big endian"""
-    fmt = ">h"
-    length = 2
+    _fmt = ">h"
+    _length = 2
 
 
 class SInt16l(BaseInteger):
     """ Signed 16-bit integer in little endian"""
-    fmt = "<h"
-    length = 2
+    _fmt = "<h"
+    _length = 2
 
 
 class UInt32b(BaseInteger):
     """ Unsigned 32-bit integer in big endian"""
-    fmt = ">I"
-    length = 4
+    _fmt = ">I"
+    _length = 4
 
 
 class UInt32l(BaseInteger):
     """ Signed 32-bit integer in little endian"""
-    fmt = "<I"
-    length = 4
+    _fmt = "<I"
+    _length = 4
 
 
 class SInt32b(BaseInteger):
     """ Signed 32-bit integer in big endian"""
-    fmt = ">i"
-    length = 4
+    _fmt = ">i"
+    _length = 4
 
 
 class SInt32l(BaseInteger):
     """ Signed 32-bit integer in little endian"""
-    fmt = "<i"
-    length = 4
+    _fmt = "<i"
+    _length = 4
 
 
 __all__ = [

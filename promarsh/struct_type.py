@@ -4,32 +4,40 @@
 from operator import add
 from .base_type import FieldType
 from .container import Container
-from .helpers import serialize, deserialize_from
 
 
 class Struct(FieldType):
 
     def __init__(self, *fields, **kwargs):
-        for name, ftype in fields:
+        for fname, ftype in fields:
             if not (isinstance(ftype, FieldType) or issubclass(ftype, FieldType)):
-                raise TypeError("(%s, %s) is not valid field" % (name, ftype))
+                raise TypeError("(%s, %s) is not valid field" % (fname, ftype))
 
         self._fields = fields
+        self._name = kwargs.pop('name', None)
         super(Struct, self).__init__(**kwargs)
 
     def _pack(self, container):
 
-        return reduce(add, [serialize(ftype, container.get_field(name))
+        return reduce(add, [ftype.serialize(container.get_field(name))
                             for name, ftype in self._fields])
 
     def _unpack_from(self, buf):
         container = Container()
         for name, ftype in self._fields:
-            value, buf = deserialize_from(ftype, buf)
+            value, buf = ftype.deserialize_from(buf)
             container.set_field(name, value)
 
         return container, buf
 
+    @classmethod
+    def get_length(cls):
+        try:
+            return sum([f.length for _, f in cls._fields])
+        except:
+            return None
 
+    def name(self):
+        return self._name or "struct-%d" % (id(self))
 
 # vim: ts=4 sw=4 sts=4 expandtab

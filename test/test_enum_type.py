@@ -13,11 +13,10 @@ from promarsh.context import context
 class TestEnumField(unittest.TestCase):
 
     def test_enum_deserialization(self):
-        opcode = Enum(
-            UInt8b,
-            (0xf1, "OP1"),
-            (0xf2, "OP2"),
-            (0x03, "OP3"),
+        opcode = Enum[UInt8b](
+            ("OP1", 0xf1),
+            ("OP2", 0xf2),
+            ("OP3", 0x03),
         )
         buf = "\xf1\xf2\x03"
         o, buf = opcode.deserialize_from(buf)
@@ -28,11 +27,10 @@ class TestEnumField(unittest.TestCase):
         self.assertEqual(o, "OP3")
 
     def test_enum_serialization(self):
-        opcode = Enum(
-            UInt8b,
-            (0xf1, "OP1"),
-            (0xf2, "OP2"),
-            (0x03, "OP3"),
+        opcode = Enum[UInt8b](
+            ("OP1", 0xf1),
+            ("OP2", 0xf2),
+            ("OP3", 0x03),
         )
         self.assertEqual(opcode.serialize("OP1"), "\xf1")
         self.assertEqual(opcode.serialize("OP3"), "\x03")

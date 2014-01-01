@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
-from .base_type import FieldType
+from .base_type import FieldType, MetaFieldType
 
 
 def list_to_bytestring(lst):
@@ -29,7 +29,7 @@ def serialize(ftype, value):
 def deserialize_from(ftype, buf):
     if isinstance(ftype, FieldType):
         return ftype.deserialize_from(buf)
-    elif issubclass(ftype, FieldType):
+    elif isinstance(ftype, MetaFieldType):
         return ftype._unpack_from(buf)
     else:
         raise TypeError("%s is not valid type" % (ftype))
