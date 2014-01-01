@@ -3,7 +3,7 @@
 import unittest
 from promarsh.integer_type import UInt16b, UInt8b
 from promarsh.array_type import Array, PrefixArray
-from promarsh.struct_type import Struct
+from promarsh.struct_type import Struct, BitStruct
 from promarsh.container import Container
 from promarsh.context import context
 
@@ -58,6 +58,26 @@ class TestArrayField(unittest.TestCase):
             "\x00\x06\x02\x17\x00l\x00c\x00\x07\x02\x17\x00l\x00d"
         )
 
+    def test_bitstruct_deserialization(self):
+        bs = BitStruct(
+            ('f1', 4),
+            ('f2', 3),
+            ('f3', 1),
+        )
+        buf = '\xdb'
+        v, _ = bs.deserialize_from(buf)
+        self.assertEqual(v.f1, 13)
+        self.assertEqual(v.f2, 5)
+        self.assertEqual(v.f3, 1)
+
+    def test_bitstruct_serialization(self):
+        bs = BitStruct(
+            ('f1', 4),
+            ('f2', 3),
+            ('f3', 1),
+        )
+        c = Container(f1=13, f2=5, f3=1)
+        self.assertEqual(bs.serialize(c), '\xdb')
 
 if __name__ == "__main__":
     unittest.main()
