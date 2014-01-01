@@ -145,5 +145,5 @@ class BitStruct(FieldType):
     def name(self):
         return self._name or "bitstruct-%d" (id(self))
 
-
+__all__ = ['UBitIntb', 'BitStruct']
 # vim: ts=4 sw=4 sts=4 expandtab
