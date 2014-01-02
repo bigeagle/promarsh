@@ -16,15 +16,34 @@ class BitField(object):
     def bit_unpack(cls, bits):
         raise NotImplemented
 
+    @classmethod
+    def __rlshift__(cls, name):
+        return (name, cls)
+
+    @classmethod
+    def __rdiv__(cls, x):
+        return (x, cls)
+
 
 class BaseBitInt(BitField):
     pass
 
 
-class MetaBitInt(type):
+class _BitPadding(BitField):
+
+    @classmethod
+    def bit_pack(cls, value):
+        return 0
+
+    @classmethod
+    def bit_unpack(cls, num):
+        return 0
+
+
+class MetaBitField(type):
     __types = {}
     _name = ""
-    _base_class = BaseBitInt
+    _base_class = BitField
 
     def __getitem__(self, bitlen):
         name = "{0}_{1}".format(self._name, bitlen)
@@ -77,7 +96,7 @@ class _UBitIntb(BaseBitInt):
         return num & cls._mask
 
 
-class MetaUBitIntb(MetaBitInt):
+class MetaUBitIntb(MetaBitField):
     _name = "UIntb"
     _base_class = _UBitIntb
 
@@ -85,6 +104,27 @@ class MetaUBitIntb(MetaBitInt):
 class UBitIntb(BaseBitInt):
     """ Unsigned Integer, big endian"""
     __metaclass__ = MetaUBitIntb
+
+
+class MetaBitPadding(MetaBitField):
+    __types = {}
+    _name = "BitPadding"
+    _base_class = _BitPadding
+
+    def __getitem__(self, bitlen):
+        name = "{0}_{1}".format(self._name, bitlen)
+        if name not in self.__types:
+            self.__types[name] = type(
+                name, (self._base_class, ),
+                dict(_bitlen=bitlen, _mask=(2**bitlen-1)))
+
+        return ("", self.__types[name])
+
+        return self.__call__(bitlen)
+
+
+class BitPadding(BitField):
+    __metaclass__ = MetaBitPadding
 
 
 class BitStruct(FieldType, BitField):
@@ -156,7 +196,8 @@ class BitStruct(FieldType, BitField):
         container = Container()
         for fname, offset, ftype in self._fields:
             _b = num >> offset
-            container.set_field(fname, ftype.bit_unpack(_b))
+            if isinstance(ftype, BitStruct) or issubclass(ftype, BaseBitInt):
+                container.set_field(fname, ftype.bit_unpack(_b))
         return container
 
     @property
@@ -171,5 +212,5 @@ def EmbeddedBitStruct(*args, **kwargs):
     return ("", BitStruct(*args, **kwargs))
 
 
-__all__ = ['UBitIntb', 'BitStruct', "EmbeddedBitStruct"]
+__all__ = ['UBitIntb', 'BitStruct', "BitPadding", "EmbeddedBitStruct"]
 # vim: ts=4 sw=4 sts=4 expandtab

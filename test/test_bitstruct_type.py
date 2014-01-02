@@ -3,7 +3,7 @@
 import unittest
 from promarsh.integer_type import UInt16b, UInt8b
 from promarsh.array_type import Array, PrefixArray
-from promarsh.bitstruct_type import BitStruct, UBitIntb
+from promarsh.bitstruct_type import BitStruct, UBitIntb, BitPadding
 from promarsh.container import Container
 from promarsh.context import context
 
@@ -17,9 +17,9 @@ class TestBitStructField(unittest.TestCase):
 
     def test_bitstruct_deserialization(self):
         bs = BitStruct(
-            ('f1', UBitIntb[4]),
-            ('f2', UBitIntb[3]),
-            ('f3', UBitIntb[1]),
+            'f1' << UBitIntb[4],
+            'f2' << UBitIntb[3],
+            'f3' << UBitIntb[1],
         )
         buf = '\xdb'
         v, _ = bs.deserialize_from(buf)
@@ -28,17 +28,17 @@ class TestBitStructField(unittest.TestCase):
         self.assertEqual(v.f3, 1)
 
         bs = BitStruct(
-            ('flags', BitStruct(
-                ('R', 1),
+            'flags' << BitStruct(
+                BitPadding[1],
                 ('DF', 1),
-                ('MF', 1))),
+                ('MF', 1)
+            ),
             ('offset', 13),
         )
         buf = '\x61\x02'
 
         v, _ = bs.deserialize_from(buf)
 
-        self.assertEqual(v.flags.R, 0)
         self.assertEqual(v.flags.DF, 1)
         self.assertEqual(v.flags.MF, 1)
         self.assertEqual(v.offset, 258)

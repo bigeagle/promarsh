@@ -10,7 +10,7 @@ from .integer_type import (
 )
 from .array_type import Array
 from .struct_type import Struct
-from .bitstruct_type import BitStruct, EmbeddedBitStruct
+from .bitstruct_type import BitStruct, EmbeddedBitStruct, BitPadding
 from .enum_type import Enum
 
 from .context import context
