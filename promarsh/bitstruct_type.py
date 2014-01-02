@@ -1,21 +1,24 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
-import struct
 from .base_type import FieldType
 from .container import Container
 
 
-class BaseBitInt(object):
+class BitField(object):
     _bitlen = 0
     _mask = 0
 
     @classmethod
-    def pack(cls, value):
+    def bit_pack(cls, value):
         raise NotImplemented
 
     @classmethod
-    def unpack(cls, bits):
+    def bit_unpack(cls, bits):
         raise NotImplemented
+
+
+class BaseBitInt(BitField):
+    pass
 
 
 class MetaBitInt(type):
@@ -35,7 +38,7 @@ class MetaBitInt(type):
 
 class _UBitIntb(BaseBitInt):
     @classmethod
-    def pack(cls, value):
+    def bit_pack(cls, value):
         # v = value & cls._mask
         # blen = cls._bitlen
         # _bytes = []
@@ -53,7 +56,7 @@ class _UBitIntb(BaseBitInt):
         return value
 
     @classmethod
-    def unpack(cls, num):
+    def bit_unpack(cls, num):
         """
         Args:
             num: a logically big-endian int
@@ -84,7 +87,7 @@ class UBitIntb(BaseBitInt):
     __metaclass__ = MetaUBitIntb
 
 
-class BitStruct(FieldType):
+class BitStruct(FieldType, BitField):
 
     def __init__(self, *fields, **kwargs):
         """
@@ -92,13 +95,15 @@ class BitStruct(FieldType):
             *fields: list of (fname, ftype), ftype should be a BitInt class, if int is given, UBitIntb type is assumed
         """
 
-        blen = 0
+        self._bitlen = 0
         for fname, ftype in fields:
             if isinstance(ftype, int):
                 ftype = UBitIntb[ftype]
-            blen += ftype._bitlen
-        self._length = (blen + 8 - 1) // 8  # length in bytes
-        _offset = self._length * 8
+            self._bitlen += ftype._bitlen
+
+        self._mask = 2 ** self._bitlen - 1
+        self._length = (self._bitlen + 8 - 1) // 8  # length in bytes
+        _offset = self._bitlen
 
         self._fields = []
         for fname, ftype in fields:
@@ -111,10 +116,7 @@ class BitStruct(FieldType):
         super(BitStruct, self).__init__(**kwargs)
 
     def _pack(self, container):
-        _byte = 0
-        for fname, offset, ftype in self._fields:
-            v = getattr(container, fname, 0)
-            _byte += ftype.pack(v) << offset
+        _byte = self.bit_pack(container)
 
         # transform the merged bit-fields to a big-endian bytes array
         _bytes = []
@@ -134,12 +136,28 @@ class BitStruct(FieldType):
         for b in _buf:
             num = (num << 8) + ord(b)
 
+        container = self.bit_unpack(num)
+        return container, rest
+
+    def bit_pack(self, container):
+        """
+        Packup a container to a number
+        """
+        _byte = 0
+        for fname, offset, ftype in self._fields:
+            v = getattr(container, fname, 0)
+            _byte += ftype.bit_pack(v) << offset
+        return _byte
+
+    def bit_unpack(self, num):
+        """
+        Unpack from an unsigned integer
+        """
         container = Container()
         for fname, offset, ftype in self._fields:
             _b = num >> offset
-            container.set_field(fname, ftype.unpack(_b))
-
-        return container, rest
+            container.set_field(fname, ftype.bit_unpack(_b))
+        return container
 
     @property
     def length(self):
@@ -151,6 +169,7 @@ class BitStruct(FieldType):
 
 def EmbeddedBitStruct(*args, **kwargs):
     return ("", BitStruct(*args, **kwargs))
+
 
 __all__ = ['UBitIntb', 'BitStruct', "EmbeddedBitStruct"]
 # vim: ts=4 sw=4 sts=4 expandtab

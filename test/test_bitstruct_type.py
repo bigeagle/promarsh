@@ -7,13 +7,13 @@ from promarsh.bitstruct_type import BitStruct, UBitIntb
 from promarsh.container import Container
 from promarsh.context import context
 
+
 class TestBitStructField(unittest.TestCase):
 
     def test_bit_integers(self):
         u1 = UBitIntb[13]
-        self.assertEqual(u1.unpack((0x01<<8)+(0x02)), 258)
-        self.assertEqual(u1.unpack((0xE1<<8)+(0x02)), 258)
-
+        self.assertEqual(u1.bit_unpack((0x01<<8)+(0x02)), 258)
+        self.assertEqual(u1.bit_unpack((0xE1<<8)+(0x02)), 258)
 
     def test_bitstruct_deserialization(self):
         bs = BitStruct(
@@ -28,16 +28,19 @@ class TestBitStructField(unittest.TestCase):
         self.assertEqual(v.f3, 1)
 
         bs = BitStruct(
-            ('R', 1),
-            ('DF', 1),
-            ('MF', 1),
+            ('flags', BitStruct(
+                ('R', 1),
+                ('DF', 1),
+                ('MF', 1))),
             ('offset', 13),
         )
         buf = '\x61\x02'
+
         v, _ = bs.deserialize_from(buf)
-        self.assertEqual(v.R, 0)
-        self.assertEqual(v.DF, 1)
-        self.assertEqual(v.MF, 1)
+
+        self.assertEqual(v.flags.R, 0)
+        self.assertEqual(v.flags.DF, 1)
+        self.assertEqual(v.flags.MF, 1)
         self.assertEqual(v.offset, 258)
 
     def test_bitstruct_serialization(self):
@@ -50,12 +53,13 @@ class TestBitStructField(unittest.TestCase):
         self.assertEqual(bs.serialize(c), '\xdb')
 
         bs = BitStruct(
-            ('R', 1),
-            ('DF', 1),
-            ('MF', 1),
+            ('flags', BitStruct(
+                ('R', 1),
+                ('DF', 1),
+                ('MF', 1))),
             ('offset', 13),
         )
-        c = Container(R=0, DF=1, MF=1, offset=259)
+        c = Container(flags=Container(R=0, DF=1, MF=1), offset=259)
         self.assertEqual(bs.serialize(c), '\x61\x03')
 
 
