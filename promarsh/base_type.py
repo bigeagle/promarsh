@@ -67,7 +67,7 @@ class BaseFieldType(object):
         raise NotImplemented
 
 
-field_options = ['before_pack', 'after_unpack']
+field_options = ['before_pack', 'after_unpack', 'bind_value']
 
 
 class FieldType(BaseFieldType):
@@ -80,11 +80,14 @@ class FieldType(BaseFieldType):
 
         _before_pack: function to execute before serializing
         _afeter_unpack: function to execute after serializing
+        _bind_value: a Bind instance which save value to context after unpack
+                    and get value from context before packing
     """
 
-    def __init__(self, before_pack=None, after_unpack=None, *args, **kwargs):
+    def __init__(self, before_pack=None, after_unpack=None, bind_value=None, *args, **kwargs):
         self._before_pack = before_pack
         self._after_unpack = after_unpack
+        self._bind_value = bind_value
         # make class and instance both able to call serialize and
         # deserialize_from method
         self.serialize = self.__serialize
@@ -92,19 +95,24 @@ class FieldType(BaseFieldType):
         super(FieldType, self).__init__(*args, **kwargs)
 
     @classmethod
-    def serialize(cls, value, _before_pack=None):
+    def serialize(cls, value, _before_pack=None, _bind_value=None):
         """Serialize packet to byte string
 
         Returns:
             pack: binary byte string
         """
         if callable(_before_pack):
-            _before_pack(context, value)
+            _ret = _before_pack(context, value)
+            if _ret is not None:
+                value = _ret
+
+        if callable(_bind_value):
+            value = _bind_value(context, value)
 
         return cls._pack(value)
 
     @classmethod
-    def deserialize_from(cls, buf, _after_unpack=None):
+    def deserialize_from(cls, buf, _after_unpack=None, _bind_value=None):
         """unpack value from buffer
 
         Args:
@@ -119,11 +127,17 @@ class FieldType(BaseFieldType):
         if callable(_after_unpack):
             _after_unpack(context, value)
 
+        if callable(_bind_value):
+            _bind_value(context, value, is_setter=True)
+
         return value, buf
 
     def __serialize(self, value):
         if callable(self._before_pack):
             self._before_pack(context, value)
+
+        if callable(self._bind_value):
+            value = self._bind_value(context, value)
 
         return self._pack(value)
 
@@ -132,6 +146,9 @@ class FieldType(BaseFieldType):
 
         if callable(self._after_unpack):
             self._after_unpack(context, value)
+
+        if callable(self._bind_value):
+            self._bind_value(context, value, is_setter=True)
 
         return value, buf
 

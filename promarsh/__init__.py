@@ -12,8 +12,10 @@ from .array_type import Array
 from .struct_type import Struct
 from .bitstruct_type import *
 from .enum_type import Enum
+from .optional_type import Optional
+from .container import Container
 
-from .context import context
+from .context import context, Bind
 from .helpers import list_to_bytestring
 
 # vim: ts=4 sw=4 sts=4 expandtab

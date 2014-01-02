@@ -15,6 +15,7 @@ class Container(object):
     def set_field(self, name, value):
         self.__fields.append(name)
         setattr(self, name, value)
+        return self
 
     def get_field(self, name):
         return getattr(self, name)
