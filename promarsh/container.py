@@ -10,7 +10,7 @@ class Container(object):
     def __init__(self, **kwargs):
         self.__fields = []
         for k, v in kwargs.iteritems():
-            setattr(self, k, v)
+            self.set_field(k, v)
 
     def set_field(self, name, value):
         self.__fields.append(name)
@@ -18,6 +18,13 @@ class Container(object):
 
     def get_field(self, name):
         return getattr(self, name)
+
+    def _items(self):
+        return [(name, getattr(self, name)) for name in self.__fields]
+
+    def _iteritems(self):
+        for name in self.__fields:
+            yield (name, getattr(self, name))
 
     def __str__(self):
         return ','.join(

@@ -26,7 +26,11 @@ class Struct(FieldType):
         container = Container()
         for name, ftype in self._fields:
             value, buf = ftype.deserialize_from(buf)
-            container.set_field(name, value)
+            if len(name) > 0:
+                container.set_field(name, value)
+            elif isinstance(value, Container):  # Embedded struct
+                for k, v in value._items():
+                    container.set_field(k, v)
 
         return container, buf
 

@@ -17,6 +17,7 @@ class BaseBitInt(object):
     def unpack(cls, bits):
         raise NotImplemented
 
+
 class MetaBitInt(type):
     __types = {}
     _name = ""
@@ -30,6 +31,7 @@ class MetaBitInt(type):
                 dict(_bitlen=bitlen, _mask=(2**bitlen-1)))
 
         return self.__types[name]
+
 
 class _UBitIntb(BaseBitInt):
     @classmethod
@@ -70,6 +72,7 @@ class _UBitIntb(BaseBitInt):
 
         # return value
         return num & cls._mask
+
 
 class MetaUBitIntb(MetaBitInt):
     _name = "UIntb"
@@ -145,5 +148,9 @@ class BitStruct(FieldType):
     def name(self):
         return self._name or "bitstruct-%d" (id(self))
 
-__all__ = ['UBitIntb', 'BitStruct']
+
+def EmbeddedBitStruct(*args, **kwargs):
+    return ("", BitStruct(*args, **kwargs))
+
+__all__ = ['UBitIntb', 'BitStruct', "EmbeddedBitStruct"]
 # vim: ts=4 sw=4 sts=4 expandtab

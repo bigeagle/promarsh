@@ -4,6 +4,7 @@ import unittest
 from promarsh.integer_type import UInt16b, UInt8b
 from promarsh.array_type import Array, PrefixArray
 from promarsh.struct_type import Struct
+from promarsh.bitstruct_type import EmbeddedBitStruct
 from promarsh.container import Container
 from promarsh.context import context
 
@@ -17,12 +18,21 @@ class TestStructField(unittest.TestCase):
             'f3' << Struct(
                 'ff1' << UInt8b,
             ),
+            '' << Struct(
+                'ff2' << UInt8b,
+            ),
+            EmbeddedBitStruct(
+                ('R', 1),
+                ('ff3', 7),
+            ),
         )
-        buf = "\x00\x06\x02\x17\x00l\x00c\x09"
+        buf = "\x00\x06\x02\x17\x00l\x00c\x09\x10\x05"
         s, _ = MyStruct1.deserialize_from(buf)
         self.assertEqual(s.f1, 6)
         self.assertEqual(s.f2, [535, 108, 99])
         self.assertEqual(s.f3.ff1, 9)
+        self.assertEqual(s.ff2, 16)
+        self.assertEqual(s.ff3, 5)
 
     def test_struct_serialization(self):
         MyStruct1 = Struct(
