@@ -85,6 +85,7 @@ class MetaArray(MetaFieldType):
 
     __array_classes = {}
 
+    @classmethod
     def __getitem__(self, _slice):
         if isinstance(_slice, (MetaFieldType, FieldType)):
             T, count, length = _slice, None, None
@@ -155,6 +156,7 @@ class MetaPrefixArray(MetaFieldType):
 
     __prefix_array_classes = {}
 
+    @classmethod
     def __getitem__(self, _slice):
         if not isinstance(_slice, slice):
             raise SyntaxError("PrefixArray[PT:T]")

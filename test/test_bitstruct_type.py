@@ -2,8 +2,8 @@
 # -*- coding:utf-8 -*-
 import unittest
 from promarsh.integer_type import UInt16b, UInt8b
-from promarsh.array_type import Array, PrefixArray
-from promarsh.bitstruct_type import BitStruct, UBitIntb, BitPadding
+from promarsh.enum_type import Enum
+from promarsh.bitstruct_type import *
 from promarsh.container import Container
 from promarsh.context import context
 
@@ -18,29 +18,32 @@ class TestBitStructField(unittest.TestCase):
     def test_bitstruct_deserialization(self):
         bs = BitStruct(
             'f1' << UBitIntb[4],
-            'f2' << UBitIntb[3],
+            'f2' << Enum[UBitIntb[3]](
+                E1=5,
+                E2=3,
+            ),
             'f3' << UBitIntb[1],
         )
         buf = '\xdb'
         v, _ = bs.deserialize_from(buf)
         self.assertEqual(v.f1, 13)
-        self.assertEqual(v.f2, 5)
+        self.assertEqual(v.f2, 'E1')
         self.assertEqual(v.f3, 1)
 
         bs = BitStruct(
             'flags' << BitStruct(
                 BitPadding[1],
-                ('DF', 1),
-                ('MF', 1)
+                'DF' << BitFlag,
+                'MF' << BitFlag,
             ),
             ('offset', 13),
         )
-        buf = '\x61\x02'
+        buf = '\x41\x02'
 
         v, _ = bs.deserialize_from(buf)
 
-        self.assertEqual(v.flags.DF, 1)
-        self.assertEqual(v.flags.MF, 1)
+        self.assertEqual(v.flags.DF, True)
+        self.assertEqual(v.flags.MF, False)
         self.assertEqual(v.offset, 258)
 
     def test_bitstruct_serialization(self):
@@ -53,14 +56,15 @@ class TestBitStructField(unittest.TestCase):
         self.assertEqual(bs.serialize(c), '\xdb')
 
         bs = BitStruct(
-            ('flags', BitStruct(
-                ('R', 1),
-                ('DF', 1),
-                ('MF', 1))),
+            'flags' << BitStruct(
+                BitPadding[1],
+                'DF' << BitFlag,
+                'MF' << BitFlag,
+            ),
             ('offset', 13),
         )
-        c = Container(flags=Container(R=0, DF=1, MF=1), offset=259)
-        self.assertEqual(bs.serialize(c), '\x61\x03')
+        c = Container(flags=Container(DF=True, MF=False), offset=259)
+        self.assertEqual(bs.serialize(c), '\x41\x03')
 
 
 if __name__ == "__main__":

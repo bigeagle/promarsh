@@ -7,6 +7,7 @@ from .container import Container
 class BitField(object):
     _bitlen = 0
     _mask = 0
+    _name = ""
 
     @classmethod
     def bit_pack(cls, value):
@@ -17,12 +18,8 @@ class BitField(object):
         raise NotImplemented
 
     @classmethod
-    def __rlshift__(cls, name):
-        return (name, cls)
-
-    @classmethod
-    def __rdiv__(cls, x):
-        return (x, cls)
+    def name(cls):
+        return cls._name
 
 
 class BaseBitInt(BitField):
@@ -45,14 +42,21 @@ class MetaBitField(type):
     _name = ""
     _base_class = BitField
 
+    @classmethod
     def __getitem__(self, bitlen):
         name = "{0}_{1}".format(self._name, bitlen)
         if name not in self.__types:
-            self.__types[name] = type(
+            self.__types[name] = MetaBitField(
                 name, (self._base_class, ),
-                dict(_bitlen=bitlen, _mask=(2**bitlen-1)))
+                dict(_bitlen=bitlen, _mask=(2**bitlen-1), _name=name))
 
         return self.__types[name]
+
+    def __rlshift__(cls, name):
+        return (name, cls)
+
+    def __rdiv__(cls, x):
+        return (x, cls)
 
 
 class _UBitIntb(BaseBitInt):
@@ -106,6 +110,26 @@ class UBitIntb(BaseBitInt):
     __metaclass__ = MetaUBitIntb
 
 
+class BitFlag(BaseBitInt):
+    _bitlen = 1
+    _mask = 1
+    __metaclass__ = MetaBitField
+
+    @classmethod
+    def bit_pack(cls, value):
+        if value not in (0, 1, True, False):
+            raise ValueError("BitFlag value should be whether True or False")
+        return True if value else False
+
+    @classmethod
+    def bit_unpack(cls, num):
+        """
+        Args:
+            num: a logically big-endian int
+        """
+        return True if (num & cls._mask) else False
+
+
 class MetaBitPadding(MetaBitField):
     __types = {}
     _name = "BitPadding"
@@ -114,7 +138,7 @@ class MetaBitPadding(MetaBitField):
     def __getitem__(self, bitlen):
         name = "{0}_{1}".format(self._name, bitlen)
         if name not in self.__types:
-            self.__types[name] = type(
+            self.__types[name] = MetaBitPadding(
                 name, (self._base_class, ),
                 dict(_bitlen=bitlen, _mask=(2**bitlen-1)))
 
@@ -185,8 +209,10 @@ class BitStruct(FieldType, BitField):
         """
         _byte = 0
         for fname, offset, ftype in self._fields:
-            v = getattr(container, fname, 0)
-            _byte += ftype.bit_pack(v) << offset
+            if not isinstance(ftype, MetaBitPadding):
+                v = getattr(container, fname, 0)
+                _byte += ftype.bit_pack(v) << offset
+
         return _byte
 
     def bit_unpack(self, num):
@@ -196,8 +222,9 @@ class BitStruct(FieldType, BitField):
         container = Container()
         for fname, offset, ftype in self._fields:
             _b = num >> offset
-            if isinstance(ftype, BitStruct) or issubclass(ftype, BaseBitInt):
+            if not isinstance(ftype, MetaBitPadding):
                 container.set_field(fname, ftype.bit_unpack(_b))
+
         return container
 
     @property
@@ -212,5 +239,5 @@ def EmbeddedBitStruct(*args, **kwargs):
     return ("", BitStruct(*args, **kwargs))
 
 
-__all__ = ['UBitIntb', 'BitStruct', "BitPadding", "EmbeddedBitStruct"]
+__all__ = ['UBitIntb', "BitFlag", "BitPadding", 'BitStruct', "EmbeddedBitStruct"]
 # vim: ts=4 sw=4 sts=4 expandtab

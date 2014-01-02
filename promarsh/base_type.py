@@ -67,6 +67,9 @@ class BaseFieldType(object):
         raise NotImplemented
 
 
+field_options = ['before_pack', 'after_unpack']
+
+
 class FieldType(BaseFieldType):
     """
     Base class for field types
@@ -86,7 +89,7 @@ class FieldType(BaseFieldType):
         # deserialize_from method
         self.serialize = self.__serialize
         self.deserialize_from = self.__deserialize_from
-        super(BaseFieldType, self).__init__(*args, **kwargs)
+        super(FieldType, self).__init__(*args, **kwargs)
 
     @classmethod
     def serialize(cls, value, _before_pack=None):
