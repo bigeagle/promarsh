@@ -70,10 +70,10 @@ if __name__ == "__main__":
         0x80, 0x10, 0x00, 0x46, 0x41, 0x49, 0x00, 0x00, 0x01, 0x01, 0x08, 0x0a, 0x50, 0xe1, 0xb8, 0x47,
         0x15, 0x70, 0x41, 0x64,
     ])
-    with context():
-        ip4_header, buf = IP4_Header.deserialize_from(ipv4_pack)
-        print ip4_header
-        tcp_header, buf = TCP_Header.deserialize_from(buf)
-        print tcp_header
+
+    ip4_header, buf = IP4_Header.deserialize_from(ipv4_pack)
+    print ip4_header
+    tcp_header, buf = TCP_Header.deserialize_from(buf)
+    print tcp_header
 
 # vim: ts=4 sw=4 sts=4 expandtab

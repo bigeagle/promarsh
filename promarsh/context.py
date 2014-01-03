@@ -75,7 +75,7 @@ context = Dynamic(threading.local())
 
 class Bind(object):
     """
-    Not Implemented
+    NOTICE: Not Fully Implemented
     """
     def __init__(self, getter_or_setter, setter=None):
         self._bi_bind = False

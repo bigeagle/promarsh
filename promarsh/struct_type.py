@@ -1,9 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
 
-from operator import add
 from .base_type import FieldType
 from .container import Container
+from .context import context
 
 
 class Struct(FieldType):
@@ -18,19 +18,28 @@ class Struct(FieldType):
         super(Struct, self).__init__(**kwargs)
 
     def _pack(self, container):
+        _bytes = ""
+        with context():
+            for name, ftype in self._fields[::-1]:
+                value = container.get_field(name)
+                context.set(name, value)
+                _bytes = ftype.serialize(value) + _bytes
 
-        return reduce(add, [ftype.serialize(container.get_field(name))
-                            for name, ftype in self._fields])
+        return _bytes
 
     def _unpack_from(self, buf):
         container = Container()
-        for name, ftype in self._fields:
-            value, buf = ftype.deserialize_from(buf)
-            if len(name) > 0:
-                container.set_field(name, value)
-            elif isinstance(value, Container):  # Embedded struct
-                for k, v in value._items():
-                    container.set_field(k, v)
+
+        with context():
+            for name, ftype in self._fields:
+                value, buf = ftype.deserialize_from(buf)
+                if len(name) > 0:
+                    container.set_field(name, value)
+                    context.set(name, value)
+                elif isinstance(value, Container):  # Embedded struct
+                    for k, v in value._items():
+                        container.set_field(k, v)
+                        context.set(k, v)
 
         return container, buf
 

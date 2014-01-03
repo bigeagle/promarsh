@@ -14,7 +14,7 @@ class TestStructField(unittest.TestCase):
     def test_struct_deserialization(self):
         MyStruct1 = Struct(
             "f1" << UInt16b,
-            'f2' << Array[UInt16b:3],
+            'f2' << Array[UInt16b::lambda ctx: ctx.f1],
             'f3' << Struct(
                 'ff1' << UInt8b,
             ),
