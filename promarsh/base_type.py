@@ -6,7 +6,8 @@ Base Field Type
 Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
-from .context import context
+from types import NoneType
+from .context import context, Bind
 
 
 class UnpackError(Exception):
@@ -87,7 +88,15 @@ class FieldType(BaseFieldType):
     def __init__(self, before_pack=None, after_unpack=None, bind_value=None, *args, **kwargs):
         self._before_pack = before_pack
         self._after_unpack = after_unpack
-        self._bind_value = bind_value
+        if not isinstance(bind_value, (Bind, NoneType)):
+            if isinstance(bind_value, tuple):
+                self._bind_value = Bind(*bind_value)
+            elif isinstance(bind_value, dict):
+                self._bind_value = Bind(**bind_value)
+            else:
+                self._bind_value = Bind(bind_value)
+        else:
+            self._bind_value = bind_value
         # make class and instance both able to call serialize and
         # deserialize_from method
         self.serialize = self.__serialize

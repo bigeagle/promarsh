@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
 import unittest
-from promarsh import Struct, UInt8b, BitStruct, BitFlag, BitPadding, Optional, Container, context, Bind
+from promarsh import Struct, UInt8b, BitStruct, BitFlag, BitPadding, Optional, Container
 
 
 class TestOptionalField(unittest.TestCase):
@@ -11,12 +11,14 @@ class TestOptionalField(unittest.TestCase):
             "f1" << UInt8b,
             "flags" << BitStruct(
                 BitPadding[7],
-                "OPT" << BitFlag,
-                bind_value=Bind(lambda ctx, v: v.set_field("OPT", ctx.options is not None),
-                                lambda ctx, v: ctx.set('flag', v)),
+                "OPT" << BitFlag(bind_value=lambda ctx, v: ctx.options is not None),
             ),
-            "options" << Optional[Struct("o1"<<UInt8b, "o2"<<UInt8b)](
-                lambda ctx: ctx.flag.OPT),
+            "options" << Optional[
+                Struct(
+                    "o1" << UInt8b,
+                    "o2" << UInt8b
+                )
+            ](lambda ctx: ctx.flags.OPT),
         )
 
     def test_optional_field_deserialization(self):

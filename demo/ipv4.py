@@ -15,7 +15,7 @@ IP4_Header = Struct(
     EmbeddedBitStruct(
         "version" << UBitIntb[4],
         "header_len" << UBitIntb[4],
-        after_unpack=lambda ctx, v: ctx.set("header_len", v.header_len * 4)
+        after_unpack=lambda ctx, v: ctx.set("header_len_bytes", v.header_len * 4)
     ),
     EmbeddedBitStruct(
         "DSCP" << UBitIntb[6],

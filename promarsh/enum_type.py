@@ -31,14 +31,14 @@ class BaseEnum(FieldType, BitField):
         v, rest = self.T.deserialize_from(buf)
         return self._map.get(v, v), rest
 
-    def bit_pack(self, value):
+    def _bit_pack(self, value):
         try:
             v = self._rmap[value]
         except:
             raise PackError("%s is not valid enum" % value)
         return self.T.bit_pack(v)
 
-    def bit_unpack(self, value):
+    def _bit_unpack(self, value):
         v = self.T.bit_unpack(value)
         return self._map.get(v, v)
 

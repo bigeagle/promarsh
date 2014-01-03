@@ -77,39 +77,23 @@ class Bind(object):
     """
     NOTICE: Not Fully Implemented
     """
-    def __init__(self, getter_or_setter, setter=None):
-        self._bi_bind = False
-
-        if setter is None:
-            self._bi_bind = True
-            self.bind_field = getter_or_setter
-        else:
-            self.getter = getter_or_setter
-            self.setter = setter
+    def __init__(self, getter, setter=None):
+        self.getter = getter
+        self.setter = setter
 
     def __call__(self, ctx, value, is_setter=False):
         if is_setter:
-            if self._bi_bind:
-                if callable(self.bind_field):
-                    return self.bind_field(ctx, value)
-                else:
-                    return ctx.set(self.bind_field, value)
+            if self.setter is None:
+                return value
+            if callable(self.setter):
+                return self.setter(ctx, value)
             else:
-                if callable(self.setter):
-                    return self.setter(ctx, value)
-                else:
-                    return ctx.set(self.setter, value)
+                return ctx.set(self.setter, value)
         else:
-            if self._bi_bind:
-                if callable(self.bind_field):
-                    return self.bind_field(ctx, value)
-                else:
-                    return getattr(ctx, self.bind_field)
+            if callable(self.getter):
+                return self.getter(ctx, value)
             else:
-                if callable(self.getter):
-                    return self.getter(ctx, value)
-                else:
-                    return getattr(self.getter)
+                return getattr(ctx, self.getter)
 
 
 __all__ = ["context", "Bind"]

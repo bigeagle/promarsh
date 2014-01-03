@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
+from types import NoneType
 from .base_type import FieldType
 from .container import Container
+from .context import context, Bind
 
 
 class BitField(object):
@@ -9,17 +11,66 @@ class BitField(object):
     _mask = 0
     _name = ""
 
+    def __init__(self, before_pack=None, after_unpack=None, bind_value=None):
+        self._before_pack = before_pack
+        self._after_unpack = after_unpack
+        if not isinstance(bind_value, (Bind, NoneType)):
+            if isinstance(bind_value, tuple):
+                self._bind_value = Bind(*bind_value)
+            elif isinstance(bind_value, dict):
+                self._bind_value = Bind(**bind_value)
+            else:
+                self._bind_value = Bind(bind_value)
+        else:
+            self._bind_value = bind_value
+        # make class and instance both able to call serialize and
+        # deserialize_from method
+        self.bit_pack = self.__instance_bit_pack
+        self.bit_unpack = self.__instance_bit_unpack
+
+    def _bit_pack(cls, value):
+        NotImplemented
+
+    def _bit_unpack(cls, bits):
+        NotImplemented
+
     @classmethod
     def bit_pack(cls, value):
-        raise NotImplemented
+        return cls._bit_pack(value)
 
     @classmethod
     def bit_unpack(cls, bits):
-        raise NotImplemented
+        return cls._bit_unpack(bits)
+
+    def __instance_bit_pack(self, value):
+        if callable(self._before_pack):
+            self._before_pack(context, value)
+
+        if callable(self._bind_value):
+            value = self._bind_value(context, value)
+
+        return self._bit_pack(value)
+
+    def __instance_bit_unpack(self, bits):
+        value = self._bit_unpack(bits)
+
+        if callable(self._after_unpack):
+            self._after_unpack(context, value)
+
+        if callable(self._bind_value):
+            self._bind_value(context, value, is_setter=True)
+
+        return value
 
     @classmethod
     def name(cls):
         return cls._name
+
+    def __rlshift__(cls, name):
+        return (name, cls)
+
+    def __rdiv__(cls, x):
+        return (x, cls)
 
 
 class BaseBitInt(BitField):
@@ -29,11 +80,11 @@ class BaseBitInt(BitField):
 class _BitPadding(BitField):
 
     @classmethod
-    def bit_pack(cls, value):
+    def _bit_pack(cls, value):
         return 0
 
     @classmethod
-    def bit_unpack(cls, num):
+    def _bit_unpack(cls, num):
         return 0
 
 
@@ -61,7 +112,7 @@ class MetaBitField(type):
 
 class _UBitIntb(BaseBitInt):
     @classmethod
-    def bit_pack(cls, value):
+    def _bit_pack(cls, value):
         # v = value & cls._mask
         # blen = cls._bitlen
         # _bytes = []
@@ -79,7 +130,7 @@ class _UBitIntb(BaseBitInt):
         return value
 
     @classmethod
-    def bit_unpack(cls, num):
+    def _bit_unpack(cls, num):
         """
         Args:
             num: a logically big-endian int
@@ -116,13 +167,13 @@ class BitFlag(BaseBitInt):
     __metaclass__ = MetaBitField
 
     @classmethod
-    def bit_pack(cls, value):
+    def _bit_pack(cls, value):
         if value not in (0, 1, True, False):
             raise ValueError("BitFlag value should be whether True or False")
         return True if value else False
 
     @classmethod
-    def bit_unpack(cls, num):
+    def _bit_unpack(cls, num):
         """
         Args:
             num: a logically big-endian int
@@ -177,7 +228,8 @@ class BitStruct(FieldType, BitField):
             self._fields.append((fname, _offset, ftype))
 
         self._name = kwargs.pop('name', None)
-        super(BitStruct, self).__init__(**kwargs)
+        FieldType.__init__(self, **kwargs)
+        BitField.__init__(self, **kwargs)
 
     def _pack(self, container):
         _byte = self.bit_pack(container)
@@ -203,7 +255,7 @@ class BitStruct(FieldType, BitField):
         container = self.bit_unpack(num)
         return container, rest
 
-    def bit_pack(self, container):
+    def _bit_pack(self, container):
         """
         Packup a container to a number
         """
@@ -215,7 +267,7 @@ class BitStruct(FieldType, BitField):
 
         return _byte
 
-    def bit_unpack(self, num):
+    def _bit_unpack(self, num):
         """
         Unpack from an unsigned integer
         """
