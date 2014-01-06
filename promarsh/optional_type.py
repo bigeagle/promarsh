@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
+import six
 from .base_type import FieldType, MetaFieldType
 from .context import context
 
@@ -55,8 +56,9 @@ class MetaOptional(MetaFieldType):
         return cls.__types[name]
 
 
+@six.add_metaclass(MetaOptional)
 class Optional(object):
-    __metaclass__ = MetaOptional
+    pass
 
 __all__ = ['Optional']
 

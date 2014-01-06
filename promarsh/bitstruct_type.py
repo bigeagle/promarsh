@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
+import six
 from types import NoneType
 from .base_type import FieldType
 from .container import Container
@@ -156,15 +157,15 @@ class MetaUBitIntb(MetaBitField):
     _base_class = _UBitIntb
 
 
+@six.add_metaclass(MetaUBitIntb)
 class UBitIntb(BaseBitInt):
     """ Unsigned Integer, big endian"""
-    __metaclass__ = MetaUBitIntb
+    pass
 
-
+@six.add_metaclass(MetaBitField)
 class BitFlag(BaseBitInt):
     _bitlen = 1
     _mask = 1
-    __metaclass__ = MetaBitField
 
     @classmethod
     def _bit_pack(cls, value):
@@ -198,8 +199,9 @@ class MetaBitPadding(MetaBitField):
         return self.__call__(bitlen)
 
 
+@six.add_metaclass(MetaBitPadding)
 class BitPadding(BitField):
-    __metaclass__ = MetaBitPadding
+    pass
 
 
 class BitStruct(FieldType, BitField):

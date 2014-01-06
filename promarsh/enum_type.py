@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
+import six
 from .base_type import FieldType, PackError, MetaFieldType, field_options
 from .bitstruct_type import BitField, MetaBitField
 
@@ -73,8 +74,9 @@ class MetaEnum(MetaFieldType):
         return cls.__enum_classes[name]
 
 
+@six.add_metaclass(MetaEnum)
 class Enum(object):
-    __metaclass__ = MetaEnum
+    pass
 
 __all__ = ['Enum']
 # vim: ts=4 sw=4 sts=4 expandtab
