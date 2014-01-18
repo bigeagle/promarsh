@@ -13,7 +13,7 @@ from .struct_type import Struct
 from .bitstruct_type import *
 from .enum_type import Enum
 from .optional_type import Optional
-from .container import Container, Packet
+from .container import Container, Packet, Flags
 
 from .pdtree import Map, PDT
 

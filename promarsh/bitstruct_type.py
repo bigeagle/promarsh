@@ -1,8 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
+import six
 from types import NoneType
 from .base_type import FieldType
-from .container import Container
+from .container import Container, Flags
 from .context import context, Bind
 
 
@@ -195,8 +196,6 @@ class MetaBitPadding(MetaBitField):
 
         return ("", self.__types[name])
 
-        return self.__call__(bitlen)
-
 
 class BitPadding(BitField):
     __metaclass__ = MetaBitPadding
@@ -291,5 +290,27 @@ def EmbeddedBitStruct(*args, **kwargs):
     return ("", BitStruct(*args, **kwargs))
 
 
-__all__ = ['UBitIntb', "BitFlag", "BitPadding", 'BitStruct', "EmbeddedBitStruct"]
+class BitFlagStruct(BitStruct):
+    """
+    BitStruct containing only BitFlag fields
+    """
+
+    def __init__(self, *flags, **kwargs):
+        fields = [flag << BitFlag
+                  if isinstance(flag, six.string_types) else flag
+                  for flag in flags]
+
+        super(BitFlagStruct, self).__init__(*fields, **kwargs)
+
+    def _bit_unpack(self, num):
+        flags = Flags()
+        for fname, offset, ftype in self._fields:
+            _b = num >> offset
+            if not isinstance(ftype, MetaBitPadding):
+                flags.set_field(fname, ftype.bit_unpack(_b))
+
+        return flags
+
+
+__all__ = ['UBitIntb', "BitFlag", "BitPadding", 'BitStruct', 'BitFlagStruct', "EmbeddedBitStruct"]
 # vim: ts=4 sw=4 sts=4 expandtab

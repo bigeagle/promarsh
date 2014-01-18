@@ -24,10 +24,8 @@ IP4_Header = Struct(
     "total_len" << UInt16b,
     "id" << UInt16b,
     EmbeddedBitStruct(
-        "flags" << BitStruct(
-            BitPadding[1],
-            'DF' << BitFlag,
-            'MF' << BitFlag,
+        "flags" << BitFlagStruct(
+            BitPadding[1], 'DF', 'MF',
         ),
         "frag_offset" << UBitIntb[13],
     ),
@@ -46,16 +44,8 @@ TCP_Header = Struct(
     EmbeddedBitStruct(
         "data_offset" << UBitIntb[4],
         "Reserved" << UBitIntb[3],
-        "Flags" << BitStruct(
-            "NS" << BitFlag,
-            "CWR" << BitFlag,
-            "ECE" << BitFlag,
-            "URG" << BitFlag,
-            "ACK" << BitFlag,
-            "PSH" << BitFlag,
-            "RST" << BitFlag,
-            "SYN" << BitFlag,
-            "FIN" << BitFlag
+        "Flags" << BitFlagStruct(
+            "NS", "CWR", "ECE", "URG", "ACK", "PSH", "RST", "SYN", "FIN"
         ),
     ),
     "win_size" << UInt16b,
@@ -77,11 +67,6 @@ if __name__ == "__main__":
         0x80, 0x10, 0x00, 0x46, 0x41, 0x49, 0x00, 0x00, 0x01, 0x01, 0x08, 0x0a, 0x50, 0xe1, 0xb8, 0x47,
         0x15, 0x70, 0x41, 0x64,
     ])
-
-    ip4_header, buf = IP4_Header.deserialize_from(ipv4_pack)
-    print ip4_header
-    tcp_header, buf = TCP_Header.deserialize_from(buf)
-    print tcp_header
 
     pkt, buf = IP_PDT.deserialize_from(ipv4_pack)
     print pkt
