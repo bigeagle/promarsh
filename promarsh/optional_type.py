@@ -14,10 +14,10 @@ class _Optional(FieldType):
         self._rely_on = rely_on
         super(_Optional, self).__init__(**kwargs)
 
-    def _pack(self, value):
+    def _pack(self, value, **kwargs):
         return self.T.serialize(value) if value is not None else ""
 
-    def _unpack_from(self, buf):
+    def _unpack_from(self, buf, **kwargs):
         return self.T.deserialize_from(buf) if self._rely_on(context) else (None, buf)
 
     @classmethod

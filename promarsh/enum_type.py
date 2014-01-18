@@ -20,14 +20,14 @@ class BaseEnum(FieldType, BitField):
 
         super(BaseEnum, self).__init__(**_options)
 
-    def _pack(self, value):
+    def _pack(self, value, **kwargs):
         try:
             v = self._rmap[value]
         except:
             raise PackError("%s is not valid enum" % value)
         return self.T.serialize(v)
 
-    def _unpack_from(self, buf):
+    def _unpack_from(self, buf, **kwargs):
         v, rest = self.T.deserialize_from(buf)
         return self._map.get(v, v), rest
 

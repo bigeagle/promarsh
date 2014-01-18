@@ -33,6 +33,7 @@ class DynamicFrame(object):
 
         self._parent = self._threadlocal.dynamic_frame
         self._threadlocal.dynamic_frame = self
+        self._ = self._parent
 
     def __enter__(self):
         return self

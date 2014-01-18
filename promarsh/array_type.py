@@ -27,11 +27,11 @@ class BaseArray(FieldType):
     _length = None
 
     @classmethod
-    def _pack(cls, value):
+    def _pack(cls, value, **kwargs):
         return reduce(add, [cls.T._pack(v) for v in value])
 
     @classmethod
-    def _unpack_from(cls, buf):
+    def _unpack_from(cls, buf, **kwargs):
         lst = []
         count = cls.count()
         if count is not None:
@@ -130,12 +130,12 @@ class BasePrefixArray(FieldType):
     T = None
 
     @classmethod
-    def _pack(cls, value):
+    def _pack(cls, value, **kwargs):
         return cls.PT.pack(len(value)*cls.T.length) \
             + reduce(add, [cls.T.pack(v) for v in value])
 
     @classmethod
-    def _unpack_from(cls, buf):
+    def _unpack_from(cls, buf, **kwargs):
         l, buf = cls.PT._unpack_from(buf)
         lst = []
         for _ in xrange(l/cls.T.length):

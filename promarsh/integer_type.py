@@ -20,14 +20,14 @@ class BaseInteger(FieldType):
     """
 
     @classmethod
-    def _pack(cls, value):
+    def _pack(cls, value, **kwargs):
         """
         Non-user API
         """
         return struct.pack(cls._fmt, value)
 
     @classmethod
-    def _unpack_from(cls, buf):
+    def _unpack_from(cls, buf, **kwargs):
         """
         Non-user API
         """

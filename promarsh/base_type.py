@@ -104,7 +104,7 @@ class FieldType(BaseFieldType):
         super(FieldType, self).__init__(*args, **kwargs)
 
     @classmethod
-    def serialize(cls, value, _before_pack=None, _bind_value=None):
+    def serialize(cls, value, _before_pack=None, _bind_value=None, **kwargs):
         """Serialize packet to byte string
 
         Returns:
@@ -118,10 +118,10 @@ class FieldType(BaseFieldType):
         if callable(_bind_value):
             value = _bind_value(context, value)
 
-        return cls._pack(value)
+        return cls._pack(value, **kwargs)
 
     @classmethod
-    def deserialize_from(cls, buf, _after_unpack=None, _bind_value=None):
+    def deserialize_from(cls, buf, _after_unpack=None, _bind_value=None, **kwargs):
         """unpack value from buffer
 
         Args:
@@ -131,7 +131,7 @@ class FieldType(BaseFieldType):
             instance: integer value unpacked from buf
             rest: rest binary data in the buf
         """
-        value, buf = cls._unpack_from(buf)
+        value, buf = cls._unpack_from(buf, **kwargs)
 
         if callable(_after_unpack):
             _after_unpack(context, value)
@@ -141,17 +141,17 @@ class FieldType(BaseFieldType):
 
         return value, buf
 
-    def __serialize(self, value):
+    def __serialize(self, value, **kwargs):
         if callable(self._before_pack):
             self._before_pack(context, value)
 
         if callable(self._bind_value):
             value = self._bind_value(context, value)
 
-        return self._pack(value)
+        return self._pack(value, **kwargs)
 
-    def __deserialize_from(self, buf):
-        value, buf = self._unpack_from(buf)
+    def __deserialize_from(self, buf, **kwargs):
+        value, buf = self._unpack_from(buf, **kwargs)
 
         if callable(self._after_unpack):
             self._after_unpack(context, value)

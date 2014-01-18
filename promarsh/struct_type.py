@@ -17,31 +17,42 @@ class Struct(FieldType):
         self._name = kwargs.pop('name', None)
         super(Struct, self).__init__(**kwargs)
 
-    def _pack(self, container):
+    def __pack(self, container, **kwargs):
         _bytes = ""
-        with context():
-            for name, ftype in self._fields[::-1]:
-                value = container.get_field(name)
-                context.set(name, value)
-                _bytes = ftype.serialize(value) + _bytes
-
+        for name, ftype in self._fields[::-1]:
+            value = container.get_field(name)
+            context.set(name, value)
+            _bytes = ftype.serialize(value, **kwargs) + _bytes
         return _bytes
 
-    def _unpack_from(self, buf):
+    def _pack(self, container, _with_ctx=True):
+        if _with_ctx:
+            with context():
+                return self.__pack(container, _with_ctx=True)
+        else:
+            return self.__pack(container)
+
+    def __unpack_from(self, buf, **kwargs):
         container = Container()
 
-        with context():
-            for name, ftype in self._fields:
-                value, buf = ftype.deserialize_from(buf)
-                if len(name) > 0:
-                    container.set_field(name, value)
-                    context.set(name, value)
-                elif isinstance(value, Container):  # Embedded struct
-                    for k, v in value._items():
-                        container.set_field(k, v)
-                        context.set(k, v)
+        for name, ftype in self._fields:
+            value, buf = ftype.deserialize_from(buf, **kwargs)
+            if len(name) > 0:
+                container.set_field(name, value)
+                context.set(name, value)
+            elif isinstance(value, Container):  # Embedded struct
+                for k, v in value._items():
+                    container.set_field(k, v)
+                    context.set(k, v)
 
         return container, buf
+
+    def _unpack_from(self, buf, _with_ctx=True):
+        if _with_ctx:
+            with context():
+                return self.__unpack_from(buf, _with_ctx=True)
+        else:
+            return self.__unpack_from(buf)
 
     @property
     def length(self):

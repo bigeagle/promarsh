@@ -231,7 +231,7 @@ class BitStruct(FieldType, BitField):
         FieldType.__init__(self, **kwargs)
         BitField.__init__(self, **kwargs)
 
-    def _pack(self, container):
+    def _pack(self, container, **kwargs):
         _byte = self.bit_pack(container)
 
         # transform the merged bit-fields to a big-endian bytes array
@@ -243,7 +243,7 @@ class BitStruct(FieldType, BitField):
 
         return ''.join(_bytes)
 
-    def _unpack_from(self, buf):
+    def _unpack_from(self, buf, **kwargs):
         _buf = buf[:self._length]
         rest = buf[self._length:]
 
