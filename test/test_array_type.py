@@ -30,16 +30,15 @@ class TestArrayField(unittest.TestCase):
             self.assertEqual(ctx.arr_value, arr)
 
         with context() as ctx:
-            ctx.buf_size = 10
+            ctx._buf_size = 10
 
             A = Array[UInt16b]
             buf = "\x00\x00\x02\x17\x00l\x00c\x00\x00"
             x, buf = UInt16b.deserialize_from(buf)
             self.assertEqual(x, 0)
-            ctx.prev_size = 2
-            ctx.rest_size = 2
+            ctx._prev_size = 2
             arr, _ = A.deserialize_from(buf)
-            self.assertEqual(arr, [535, 108, 99])
+            self.assertEqual(arr, [535, 108, 99, 0])
 
         arr, rest = PrefixArray[UInt8b:UInt16b].deserialize_from("\x06\x02\x17\x00l\x00c\x00\x00")
         self.assertEqual(arr, [535, 108, 99])

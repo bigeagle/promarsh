@@ -32,7 +32,7 @@ IP4_Header = Struct(
         "frag_offset" << UBitIntb[13],
     ),
     "TTL" << UInt8b,
-    "protocol" << UInt8b,
+    "protocol" << IPProtocolEnum,
     "checksum" << UInt16b,
     "src" << Array[UInt8b:4],
     "dst" << Array[UInt8b:4],
@@ -63,6 +63,13 @@ TCP_Header = Struct(
 
 )
 
+IP_PDT = PDT(
+    IP4_Header,
+    Map(
+        lambda ctx: ctx.protocol,
+        TCP=PDT(TCP_Header, Array[UInt8b]),
+    ))
+
 if __name__ == "__main__":
     ipv4_pack = list_to_bytestring([
         0x45, 0x00, 0x00, 0x34, 0x81, 0x53, 0x40, 0x00, 0x30, 0x06, 0xeb, 0x64, 0x17, 0x15, 0xb7, 0xca,
@@ -75,5 +82,9 @@ if __name__ == "__main__":
     print ip4_header
     tcp_header, buf = TCP_Header.deserialize_from(buf)
     print tcp_header
+
+    pkt, buf = IP_PDT.deserialize_from(ipv4_pack)
+    print pkt
+
 
 # vim: ts=4 sw=4 sts=4 expandtab

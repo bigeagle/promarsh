@@ -13,7 +13,9 @@ from .struct_type import Struct
 from .bitstruct_type import *
 from .enum_type import Enum
 from .optional_type import Optional
-from .container import Container
+from .container import Container, Packet
+
+from .pdtree import Map, PDT
 
 from .context import context, Bind
 from .helpers import list_to_bytestring

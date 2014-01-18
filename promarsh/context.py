@@ -62,6 +62,12 @@ class DynamicFrame(object):
         except KeyError:
             raise NameError("name %r is not defined" % name)
 
+    def _force_set(self, name, value):
+        try:
+            setattr(self, name, value)
+        except:
+            pass
+
     def set(self, name, value):
         return setattr(self, name, value)
 

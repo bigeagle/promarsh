@@ -31,5 +31,10 @@ class Container(object):
         return '{' + ', '.join(
             ["{0}:{1}".format(k, getattr(self, k)) for k in self.__fields]) + "}"
 
-__all__ = ['Container']
+
+class Packet(Container):
+    pass
+
+
+__all__ = ['Container', 'Packet']
 # vim: ts=4 sw=4 sts=4 expandtab

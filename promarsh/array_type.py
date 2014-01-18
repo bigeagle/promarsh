@@ -73,7 +73,7 @@ class BaseArray(FieldType):
                 return cls._length(context)
             else:
                 try:
-                    return context.buf_size - context.prev_size - context.rest_size
+                    return context._buf_size - context._prev_size
                 except:
                     raise UnpackError("Error inferring packet length from context")
 

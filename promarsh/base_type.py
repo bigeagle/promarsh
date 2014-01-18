@@ -35,6 +35,9 @@ class MetaFieldType(type):
     def __rdiv__(cls, x):
         return (x, cls)
 
+    def __len__(cls):
+        return cls.length
+
 
 class BaseFieldType(object):
     """
