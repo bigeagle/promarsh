@@ -6,6 +6,7 @@ Array type
 Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
+import six
 from operator import add
 from .base_type import FieldType, UnpackError, MetaFieldType
 from .integer_type import BaseInteger
@@ -115,8 +116,9 @@ class MetaArray(MetaFieldType):
         return cls.__array_classes[name]
 
 
+@six.add_metaclass(MetaArray)
 class Array(object):
-    __metaclass__ = MetaArray
+    pass
 
 
 # ----- prefix array -----------
@@ -178,8 +180,9 @@ class MetaPrefixArray(MetaFieldType):
         return cls.__prefix_array_classes[name]
 
 
+@six.add_metaclass(MetaPrefixArray)
 class PrefixArray(object):
-    __metaclass__ = MetaPrefixArray
+    pass
 
 __all__ = ["Array", "PrefixArray"]
 

@@ -72,7 +72,6 @@ distutils.core.setup(
     package_dir={'promarsh': 'promarsh'},
     classifiers=[
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 2.6",
     ],
     install_requires=parse_requirements('requirements.txt'),
     dependency_links=parse_dependency_links('requirements.txt'),

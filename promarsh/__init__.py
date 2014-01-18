@@ -2,6 +2,10 @@
 # -*- coding:utf-8 -*-
 __version__ = "0.0.1"
 
+import six
+if six.PY3:
+    raise Exception("Promarsh is not compatible with Python 3 yet.")
+
 from .base_type import FieldType, MetaFieldType
 from .integer_type import (
     UInt8b, UInt8l, SInt8b, SInt8l,

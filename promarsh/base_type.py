@@ -6,6 +6,7 @@ Base Field Type
 Author: Justin Wong <justin.w.xd@gmail.com>
 """
 
+import six
 from types import NoneType
 from .context import context, Bind
 
@@ -39,6 +40,7 @@ class MetaFieldType(type):
         return cls.length
 
 
+@six.add_metaclass(MetaFieldType)
 class BaseFieldType(object):
     """
     Base class for field types
@@ -47,7 +49,6 @@ class BaseFieldType(object):
         fmt: format string for `struct` module
         length: field length in bytes
     """
-    __metaclass__ = MetaFieldType
 
     _fmt = None
     _length = None
